@@ -1,0 +1,22 @@
+{
+  "timeZone": "America/Sao_Paulo",
+  "dependencies": {
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "sheets": {
+    "macros": [{
+      "menuName": "ggff",
+      "functionName": "ggff"
+    }, {
+      "menuName": "frmmmss",
+      "functionName": "frmmmss"
+    }, {
+      "menuName": "FRM2",
+      "functionName": "FRM2"
+    }, {
+      "menuName": "frmsassffffffffffff",
+      "functionName": "frmsassffffffffffff"
+    }]
+  }
+}
