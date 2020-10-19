@@ -1,6 +1,6 @@
-/* ********************************************  Inicio Nova Compra ******************************************* */
+/* ********************************************  Inicio Nova Venda ******************************************* */
 //Reformulação
-function reformularCompraNova() {
+function ReformularVendaNova() {
   var spreadsheet = SpreadsheetApp.getActive();
 
   //Limpar
@@ -10,13 +10,13 @@ function reformularCompraNova() {
 
   spreadsheet
     .getRange("D4")
-    .setBackground("#6d9eeb")
+    .setBackground("#5da68a")
     .clearDataValidations()
-    .setFormula('=IF(G5="";"";MAX(\'Compras Dados\'!A2:A)+1)');
+    .setFormula('=IF(G5="";"";MAX(\'Vendas Dados\'!A2:A)+1)');
   spreadsheet
     .getRange("D5")
     .setFormula(
-      "=IF(G5=\"\";\"\";IF(COUNTIF('Compras Dados'!C2:C;G5) >= 1;LOOKUP(G5;'Compras Dados'!C2:C;'Compras Dados'!B2:B);MAX('Compras Dados'!B2:B)+1))"
+      "=IF(G5=\"\";\"\";IF(COUNTIF('Vendas Dados'!C2:C;G5) >= 1;LOOKUP(G5;'Vendas Dados'!C2:C;'Vendas Dados'!B2:B);MAX('Vendas Dados'!B2:B)+1))"
     );
 
   spreadsheet.getRange("H6").setFormula('=IF(G5="";"";Today())');
@@ -25,19 +25,15 @@ function reformularCompraNova() {
   spreadsheet.getRange("K8").setFormula('=IF(K7="";""; K6*K7)');
 }
 
-function modoNovaCompra() {
+function ModoNovaVenda() {
   var spreadsheet = SpreadsheetApp.getActive();
   //Formulação
   spreadsheet.getRange("AL3").setValue(1);
   spreadsheet.getRange("D1").setValue("Novo");
-  //Limpar
-  spreadsheet
-    .getRangeList(["G5", "H6:H8", "K4:K8", "K25", "G11:M15"])
-    .clear({ contentsOnly: true, skipFilteredRows: true });
 
   // spreadsheet.getRange('AN3').setFormula('=IF(G5="";"";QUERY(\'Clientes Dados\'!A:M; "SELECT * WHERE \'"&G5&"\' = C "))');
 
-  reformularCompraNova();
+  ReformularVendaNova();
 
   spreadsheet.getRange("G18").setFormula('=IF(G11="";"";COUNTA(G11:G16))');
   spreadsheet.getRange("I18").setFormula('=IF(G11="";"";SUM(J11:J16))');
@@ -51,34 +47,34 @@ function modoNovaCompra() {
   spreadsheet.getRange("M25").setFormula('=IF(I25="";"";K18-I25)');
   spreadsheet
     .getRange("H22")
-    .setFormula('=IF(G18="";"";MAX(\'Compras Dados\'!M2:M)+1)'); //ID Pagamento
+    .setFormula('=IF(G18="";"";MAX(\'Vendas Dados\'!M2:M)+1)'); //ID Pagamento
 
   spreadsheet.getRange("G5").activate();
 }
 
-/* ************************ Salvar Compra ******************** */
+/* ************************ Salvar Venda ******************** */
 
-// Função auxiliar de salvarCompra
-function salvarCompra2(x, idFornecedor idCompra) {
+// Função auxiliar de SalvarVenda
+function salvarVenda2(x, idCliente, idCompra, idRecebimento) {
   var spreadsheet = SpreadsheetApp.getActive();
-  var DadosCompras = spreadsheet.getSheetByName("Compras Dados");
-  var Form = spreadsheet.getSheetByName("Compras");
+  var dadosVendas = spreadsheet.getSheetByName("Vendas Dados");
+  var Form = spreadsheet.getSheetByName("Vendas");
 
   var values = [
     [
-      idCompra,                       // ID Compra
-      idFornecedor,                   // ID Fornecedor
-      Form.getRange("G5").getValue(), // Fornecedor
-      Form.getRange("H6").getValue(), // Data Compra
+      idCompra,                       // ID Venda
+      idCliente,                       // ID Cliente
+      Form.getRange("G5").getValue(), // Cliente
+      Form.getRange("H6").getValue(), // Data Venda
       Form.getRange("H7").getValue(), // Motorista
       Form.getRange("H8").getValue(), // Placa
       Form.getRange(x, 7).getValue(), // ID Produto
       Form.getRange(x, 8).getValue(), // Marca
       Form.getRange(x, 9).getValue(), // Produto
       Form.getRange(x, 10).getValue(), // Quantidade
-      Form.getRange(x, 11).getValue(), // Custo de Compra
-      Form.getRange(x, 12).getValue(), // Total de Compra
-      Form.getRange("H22").getValue(), // ID Recebimento
+      Form.getRange(x, 11).getValue(), // Custo de Venda
+      Form.getRange(x, 12).getValue(), // Total de Venda
+      idRecebimento, // ID Recebimento
       Form.getRange("G25").getValue(), // Data Recebimento
       Form.getRange("K25").getValue(), // Forma de Pagamento
       Form.getRange("I25").getValue(), // Valor recebido
@@ -86,21 +82,19 @@ function salvarCompra2(x, idFornecedor idCompra) {
     ],
   ]; // Restante
 
-  return DadosCompras.getRange(
-    DadosCompras.getLastRow() + 1,
-    1,
-    1,
-    17
-  ).setValues(values);
+  return dadosVendas
+    .getRange(dadosVendas.getLastRow() + 1, 1, 1, 17)
+    .setValues(values);
 }
 
-// Função condutora para salvar Compra
+// Função condutora para salvar Venda
 
-function SalvarCompra() {
+function SalvarVenda() {
   var spreadsheet = SpreadsheetApp.getActive();
-  var Form = spreadsheet.getSheetByName("Compras");
+  var Form = spreadsheet.getSheetByName("Vendas");
   var idCompra = Form.getRange("D4").getValue();
-  var idFornecedor = Form.getRange("D5").getValue();
+  var idCliente = Form.getRange("D5").getValue();
+  var idRecebimento = spreadsheet.getRange("H22").getValue();
   var quantLinhasProd = spreadsheet.getRange("AJ3").getValue();
 
   if (spreadsheet.getRange("AK3").getValue() > 0) {
@@ -112,12 +106,11 @@ function SalvarCompra() {
   } else {
     let aux = 11;
     for (let index = 1; index <= quantLinhasProd; index++) {
-      salvarCompra2(aux, idFornecedor, idCompra);
+      salvarVenda2(aux, idCliente, idCompra, idRecebimento);
       aux++;
     }
-
-    limparProdCompras();
-    reformularCompraNova();
+    ReformularVendaNova();
+    LimparProdVendas();
     Browser.msgBox(
       "Informativo",
       "Registro salvo com sucesso!",
@@ -128,23 +121,23 @@ function SalvarCompra() {
   }
 }
 
-/* ******************************************** Término Nova Compra ******************************************* */
+/* ******************************************** Término Nova Venda ******************************************* */
 
-/* ******************************************* Início Deletar Compras ********************************************** */
+/* ******************************************* Início Deletar Vendas ********************************************** */
 
 //Modo Deletar
 
-function reformularDeletarCompra() {
+function ReformularDeletarVenda() {
   var spreadsheet = SpreadsheetApp.getActive();
 
-  spreadsheet.getRange("H6").setFormula('=IF(D4="";"";BI5)'); //Data Compra
+  spreadsheet.getRange("H6").setFormula('=IF(D4="";"";BI5)'); //Data Venda
   spreadsheet.getRange("H7").setFormula('=IF(D4="";"";BJ5)'); //Entregador
   spreadsheet.getRange("H8").setFormula('=IF(D4="";"";BK5)'); //Veículo
 
   spreadsheet.getRange("K25").setFormula('=IF(D4="";"";BT5)'); //Forma de Pagamento
 
-  //spreadsheet.getRange('K7').setFormula('=IF(K6="";"";L7)');  //Preço de Compra
-  //spreadsheet.getRange('K8').setFormula('=IF(K7="";""; K6*K7)');// Total de Compra
+  //spreadsheet.getRange('K7').setFormula('=IF(K6="";"";L7)');  //Preço de Venda
+  //spreadsheet.getRange('K8').setFormula('=IF(K7="";""; K6*K7)');// Total de Venda
 
   //Formular aŕea de produto
 
@@ -202,21 +195,21 @@ function reformularDeletarCompra() {
   spreadsheet.getRange("G11:L16").setValues(values);
 }
 
-function modoDeletarCompra() {
+function ModoDeletarVenda() {
   var spreadsheet = SpreadsheetApp.getActive();
   spreadsheet.getRange("AL3").setValue(3);
   spreadsheet.getRange("D1").setValue("Deletar");
-  //Query consulta Compra
+  //Query consulta Venda
   spreadsheet
     .getRange("BF4")
     .setFormula(
-      '=IF(G5="";QUERY(\'Compras Dados\'!A:R;"SELECT *");IF(D4="";QUERY(\'Compras Dados\'!A:R;"SELECT * WHERE "&D5&" = B");QUERY(\'Compras Dados\'!A:R;"SELECT * WHERE "&D5&" = B AND "&D4&" = A")))'
+      '=IF(G5="";QUERY(\'Vendas Dados\'!A:R;"SELECT *");IF(D4="";QUERY(\'Vendas Dados\'!A:R;"SELECT * WHERE "&D5&" = B");QUERY(\'Vendas Dados\'!A:R;"SELECT * WHERE "&D5&" = B AND "&D4&" = A")))'
     );
-  //Query ID Fornecedor
+  //Query ID Cliente
   spreadsheet
     .getRange("AN3")
     .setFormula(
-      '=IF(G5="";"";QUERY(\'Compras Dados\'!A:C; "SELECT * WHERE \'"&G5&"\' = C "))'
+      '=IF(G5="";"";QUERY(\'Vendas Dados\'!A:C; "SELECT * WHERE \'"&G5&"\' = C "))'
     );
   //Limpar
   spreadsheet
@@ -230,12 +223,12 @@ function modoDeletarCompra() {
     .setDataValidation(
       SpreadsheetApp.newDataValidation()
         .setAllowInvalid(false)
-        .requireValueInRange(spreadsheet.getRange("'Compras'!$BZ$5:$BZ"), true)
+        .requireValueInRange(spreadsheet.getRange("'Vendas'!$BZ$5:$BZ"), true)
         .build()
-    ); //ID Compra
+    ); //ID Venda
 
   spreadsheet.getRange("D5").setFormula('=IF(G5="";"";AO4)'); //ID Cliente
-  //spreadsheet.getRange('D6').setFormula('=IF(D4="";"";BH5)'); //Canal de Compra
+  //spreadsheet.getRange('D6').setFormula('=IF(D4="";"";BH5)'); //Canal de Venda
 
   spreadsheet
     .getRange("G5")
@@ -243,13 +236,13 @@ function modoDeletarCompra() {
       SpreadsheetApp.newDataValidation()
         .setAllowInvalid(true)
         .requireValueInRange(
-          spreadsheet.getRange("'Compras Dados'!$C$2:$C"),
+          spreadsheet.getRange("'Vendas Dados'!$C$2:$C"),
           true
         )
         .build()
     );
 
-  reformularDeletarCompra();
+  ReformularDeletarVenda();
 
   spreadsheet.getRange("H22").setFormula('=IF(D4="";"";BR5)'); //ID Pagamento
 
@@ -261,9 +254,9 @@ function modoDeletarCompra() {
   spreadsheet.getRange("G5").activate();
 }
 
-//**** Consolidar Deletar Compras
+//**** Consolidar Deletar Vendas
 
-function DeletarCompra() {
+function DeletarVenda() {
   var spreadsheet = SpreadsheetApp.getActive();
 
   if (spreadsheet.getRange("AK3").getValue() > 0) {
@@ -273,18 +266,12 @@ function DeletarCompra() {
       Browser.Buttons.OK
     );
   } else {
-    var Compras = spreadsheet.getSheetByName("Compras");
-    //var Pesquisa = Compras.getRange('D4').getValue();
-    var ComprasDados = spreadsheet.getSheetByName("Compras Dados");
-    //var LocalPesquisa = ComprasDados.getRange(2, 1, ComprasDados.getLastRow()).getValues();
-    //var Resultado = LocalPesquisa.findIndex(Pesquisa);
-    //var LINHA = Resultado + 2;
+    var vendasDados = spreadsheet.getSheetByName("Vendas Dados");
     var LINHA = spreadsheet.getRange("AI3").getValue();
     var quantLinhas = spreadsheet.getRange("AJ3").getValue();
 
-    //ComprasDados.deleteRow(LINHA);
+    vendasDados.deleteRows(LINHA, quantLinhas);
 
-    ComprasDados.deleteRows(LINHA, quantLinhas);
     //Limpar
     spreadsheet
       .getRangeList(["D4", "G5"])
@@ -293,18 +280,18 @@ function DeletarCompra() {
     Browser.msgBox("Informativo", "Registro deletado!", Browser.Buttons.OK);
 
     //Reformular
-    reformularDeletarCompra();
+    ReformularDeletarVenda();
 
     spreadsheet.getRange("G5").activate();
   }
 }
 
-/* *********************************************  Término Compras ********************************************** */
+/* *********************************************  Término Vendas ********************************************** */
 
 /* ******************************************** Função Inserir produto ***************************************** */
-function inserirProdutoCompra2(x) {
+function InserirProdutoVenda2(x) {
   var spreadsheet = SpreadsheetApp.getActive();
-  var Form = spreadsheet.getSheetByName("Compras");
+  var Form = spreadsheet.getSheetByName("Vendas");
 
   var values = [
     [
@@ -312,8 +299,8 @@ function inserirProdutoCompra2(x) {
       Form.getRange("K4").getValue(), // Marca
       Form.getRange("K5").getValue(), // Produto
       Form.getRange("K6").getValue(), // Quantidade
-      Form.getRange("K7").getValue(), // Preço de  Compra
-      //Form.getRange('K7').getValue(),    // Preço de Compra
+      Form.getRange("K7").getValue(), // Preço de Venda
+      //Form.getRange('K7').getValue(),    // Preço de Venda
       Form.getRange("K8").getValue(),
     ],
   ]; // Total
@@ -328,7 +315,7 @@ function inserirProdutoCompra2(x) {
   );
 }
 
-function inserirProdutoCompra() {
+function InserirProdutoVenda() {
   var spreadsheet = SpreadsheetApp.getActive();
 
   if (spreadsheet.getRange("AM3").getValue() > 0) {
@@ -340,21 +327,21 @@ function inserirProdutoCompra() {
     spreadsheet.getRange("K4").activate();
   } else {
     if (spreadsheet.getRange("G11").getValue() == "") {
-      inserirProdutoCompra2("G11:L11");
+      InserirProdutoVenda2("G11:L11");
     } else if (spreadsheet.getRange("G12").getValue() == "") {
-      inserirProdutoCompra2("G12:L12");
+      InserirProdutoVenda2("G12:L12");
     } else if (spreadsheet.getRange("G13").getValue() == "") {
-      inserirProdutoCompra2("G13:L13");
+      InserirProdutoVenda2("G13:L13");
     } else if (spreadsheet.getRange("G14").getValue() == "") {
-      inserirProdutoCompra2("G14:L14");
+      InserirProdutoVenda2("G14:L14");
     } else if (spreadsheet.getRange("G15").getValue() == "") {
-      inserirProdutoCompra2("G15:L15");
+      InserirProdutoVenda2("G15:L15");
     } else if (spreadsheet.getRange("G16").getValue() == "") {
-      inserirProdutoCompra2("G16:L16");
+      InserirProdutoVenda2("G16:L16");
     } else {
       Browser.msgBox(
         "Erro:",
-        "Todas as linhas foram preenchidas, finalize a Compra!",
+        "Todas as linhas foram preenchidas, finalize a Venda!",
         Browser.Buttons
       );
     }
@@ -365,15 +352,15 @@ function inserirProdutoCompra() {
 
 //******************    Finalizador   ******************************************************************
 
-function FinalizadorCompra() {
+function FinalizadorVenda() {
   var spreadsheet = SpreadsheetApp.getActive();
 
   if (spreadsheet.getRange("AL3").getValue() == 1) {
-    SalvarCompra();
+    SalvarVenda();
   } else if (spreadsheet.getRange("AL3").getValue() == 2) {
     EditarCompra();
   } else {
-    DeletarCompra();
+    DeletarVenda();
   }
 }
 
@@ -389,28 +376,27 @@ Array.prototype.findIndex = function (Procura) {
 };
 
 /* ******************************************** Limpar  ******************************************* */
-function limparProdCompras() {
+function LimparProdVendas() {
   var spreadsheet = SpreadsheetApp.getActive();
   spreadsheet
-    .getRangeList(["G11:M16", "K25"])
+    .getRangeList(["G11:M16", "K25", "K4:K7"])
     .clear({ contentsOnly: true, skipFilteredRows: true });
-  spreadsheet.getRange("K7").setFormula('=IF(K6="";"";L7)');
 }
 
 /* ************************************************************************************************** */
 
-function pagReltorioCompras() {
+function pagReltorioVendas() {
   var spreadsheet = SpreadsheetApp.getActive();
-  //var compras = spreadsheet.getSheetByName('Compras');
+  //var Vendas = spreadsheet.getSheetByName('Vendas');
 
   spreadsheet.setActiveSheet(
-    spreadsheet.getSheetByName("Relatório Compras"),
+    spreadsheet.getSheetByName("Relatório Vendas"),
     true
   );
 }
 
-function relatorioCompras() {
-  //var spreadsheet = SpreadsheetApp.getActive();
+function RelatorioVendas() {
+  var spreadsheet = SpreadsheetApp.getActive();
   var url =
     "https://datastudio.google.com/embed/reporting/a4d2055e-8a6f-47b4-9f28-650ff423fa5b/page/feyJB";
   var html =
@@ -419,32 +405,32 @@ function relatorioCompras() {
 
   SpreadsheetApp.getUi().showModalDialog(
     userInterface,
-    "Relatório de Compras..."
+    "Relatório de Vendas..."
   );
 }
- //Exemplo de criar abrir relotario por uma caixa de dialogo ou direto
+// Exemplo de criar abrir relotario por uma caixa de dialogo ou direto
   
-  function relatoriosComprasDialog() {
+  function RelatoriosVendasDialog() {
     
-    var url = 'https://datastudio.google.com/embed/reporting/a4d2055e-8a6f-47b4-9f28-650ff423fa5b/page/feyJB';
-    var name = 'Compras Consolidado';
+    var url = 'https://datastudio.google.com/embed/reporting/e2471175-38dc-4eb1-a28f-62c850a9d178/page/feyJB';
+    var name = 'Vendas Consolidado';
 
-    var url2 = 'https://datastudio.google.com/embed/reporting/3ec69602-2920-4ac6-9976-8c3c6b8fedea/page/feyJB';
-    var name2 = 'Compras Analítico';  
+    var url2 = 'https://datastudio.google.com/embed/reporting/a4d2055e-8a6f-47b4-9f28-650ff423fa5b/page/feyJB';
+    var name2 = 'Vendas Analítico';  
 
     var html = '<html><body><a href="'+url+'" target="blank" onclick="google.script.host.close()">'+name+'</a> <br><br/><a href="'+url2+'" target="blank" onclick="google.script.host.close()">'+name2+'</a></body></html>';
     var ui = HtmlService.createHtmlOutput(html)
-    SpreadsheetApp.getUi().showModelessDialog(ui,"Relatórios de Compras");
+    SpreadsheetApp.getUi().showModelessDialog(ui,"Relatórios de Vendas");
   }
   
-  // function relatorioCompras(){
+  // function RelatorioVendas(){
   
   //   var spreadsheet = SpreadsheetApp.getActive();
   //   var url = "https://datastudio.google.com/embed/reporting/a4d2055e-8a6f-47b4-9f28-650ff423fa5b/page/feyJB"
   //   var html = "<script> window.open('"+ url + "');google.script.host.close();</script>";
   //   var userInterface = HtmlService.createHtmlOutput(html);
     
-  //   SpreadsheetApp.getUi().showModalDialog(userInterface, "Relatório de Compras...");
+  //   SpreadsheetApp.getUi().showModalDialog(userInterface, "Relatório de Vendas...");
   // }
   
   
