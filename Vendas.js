@@ -398,7 +398,7 @@ function pagReltorioVendas() {
 function RelatorioVendas() {
   var spreadsheet = SpreadsheetApp.getActive();
   var url =
-    "https://datastudio.google.com/embed/reporting/a4d2055e-8a6f-47b4-9f28-650ff423fa5b/page/feyJB";
+    "https://datastudio.google.com/reporting/a4d2055e-8a6f-47b4-9f28-650ff423fa5b/page/feyJB";
   var html =
     "<script> window.open('" + url + "');google.script.host.close();</script>";
   var userInterface = HtmlService.createHtmlOutput(html);
@@ -412,10 +412,10 @@ function RelatorioVendas() {
   
   function RelatoriosVendasDialog() {
     
-    var url = 'https://datastudio.google.com/embed/reporting/e2471175-38dc-4eb1-a28f-62c850a9d178/page/feyJB';
+    var url = 'https://datastudio.google.com/reporting/e2471175-38dc-4eb1-a28f-62c850a9d178/page/feyJB';
     var name = 'Vendas Consolidado';
 
-    var url2 = 'https://datastudio.google.com/embed/reporting/a4d2055e-8a6f-47b4-9f28-650ff423fa5b/page/feyJB';
+    var url2 = 'https://datastudio.google.com/reporting/8bc163d7-8140-4abb-b6d3-f8d708d64d7c/page/feyJB';
     var name2 = 'Vendas Analítico';  
 
     var html = '<html><body><a href="'+url+'" target="blank" onclick="google.script.host.close()">'+name+'</a> <br><br/><a href="'+url2+'" target="blank" onclick="google.script.host.close()">'+name2+'</a></body></html>';

@@ -59,7 +59,7 @@ function modoNovaCompra() {
 /* ************************ Salvar Compra ******************** */
 
 // Função auxiliar de salvarCompra
-function salvarCompra2(x, idFornecedor idCompra) {
+function salvarCompra2(x, idFornecedor, idCompra) {
   var spreadsheet = SpreadsheetApp.getActive();
   var DadosCompras = spreadsheet.getSheetByName("Compras Dados");
   var Form = spreadsheet.getSheetByName("Compras");
@@ -82,7 +82,7 @@ function salvarCompra2(x, idFornecedor idCompra) {
       Form.getRange("G25").getValue(), // Data Recebimento
       Form.getRange("K25").getValue(), // Forma de Pagamento
       Form.getRange("I25").getValue(), // Valor recebido
-      Form.getRange("M25").getValue(),
+      Form.getRange("M25").getValue()
     ],
   ]; // Restante
 
@@ -426,10 +426,10 @@ function relatorioCompras() {
   
   function relatoriosComprasDialog() {
     
-    var url = 'https://datastudio.google.com/embed/reporting/a4d2055e-8a6f-47b4-9f28-650ff423fa5b/page/feyJB';
+    var url = 'https://datastudio.google.com/reporting/a4d2055e-8a6f-47b4-9f28-650ff423fa5b/page/feyJB';
     var name = 'Compras Consolidado';
 
-    var url2 = 'https://datastudio.google.com/embed/reporting/3ec69602-2920-4ac6-9976-8c3c6b8fedea/page/feyJB';
+    var url2 = 'https://datastudio.google.com/reporting/3ec69602-2920-4ac6-9976-8c3c6b8fedea/page/feyJB';
     var name2 = 'Compras Analítico';  
 
     var html = '<html><body><a href="'+url+'" target="blank" onclick="google.script.host.close()">'+name+'</a> <br><br/><a href="'+url2+'" target="blank" onclick="google.script.host.close()">'+name2+'</a></body></html>';
