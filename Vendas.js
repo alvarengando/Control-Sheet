@@ -78,7 +78,7 @@ function salvarVenda2(x, idCliente, idCompra, idRecebimento) {
       Form.getRange("G25").getValue(), // Data Recebimento
       Form.getRange("K25").getValue(), // Forma de Pagamento
       Form.getRange("I25").getValue(), // Valor recebido
-      Form.getRange("M25").getValue(),
+      Form.getRange("M25").getValue()
     ],
   ]; // Restante
 
